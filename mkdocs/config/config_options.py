@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import os
-from collections import namedtuple
 
 from mkdocs import utils, legacy
 from mkdocs.config.base import Config, ValidationError
@@ -157,31 +156,6 @@ class Deprecated(BaseConfigOption):
         target[target_key] = config.pop(key_name)
 
 
-class IpAddress(OptionallyRequired):
-    """
-    IpAddress Config Option
-
-    Validate that an IP address is in an apprioriate format
-    """
-
-    def run_validation(self, value):
-        try:
-            host, port = value.rsplit(':', 1)
-        except:
-            raise ValidationError("Must be a string of format 'IP:PORT'")
-
-        try:
-            port = int(port)
-        except:
-            raise ValidationError("'{0}' is not a valid port".format(port))
-
-        class Address(namedtuple('Address', 'host port')):
-            def __str__(self):
-                return '{0}:{1}'.format(self.host, self.port)
-
-        return Address(host, port)
-
-
 class URL(OptionallyRequired):
     """
     URL Config Option
@@ -279,14 +253,14 @@ class SiteDir(Dir):
         # Validate that the docs_dir and site_dir don't contain the
         # other as this will lead to copying back and forth on each
         # and eventually make a deep nested mess.
-        if (config['docs_dir'] + os.sep).startswith(config['site_dir'].rstrip(os.sep) + os.sep):
+        if (config['docs_dir'] + os.sep).startswith(config['site_dir'] + os.sep):
             raise ValidationError(
                 ("The 'docs_dir' should not be within the 'site_dir' as this "
                  "can mean the source files are overwritten by the output or "
                  "it will be deleted if --clean is passed to mkdocs build."
                  "(site_dir: '{0}', docs_dir: '{1}')"
                  ).format(config['site_dir'], config['docs_dir']))
-        elif (config['site_dir'] + os.sep).startswith(config['docs_dir'].rstrip(os.sep) + os.sep):
+        elif (config['site_dir'] + os.sep).startswith(config['docs_dir'] + os.sep):
             raise ValidationError(
                 ("The 'site_dir' should not be within the 'docs_dir' as this "
                  "leads to the build directory being copied into itself and "
@@ -311,7 +285,7 @@ class ThemeDir(Dir):
 
         package_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '..'))
-        theme_dir = [utils.get_theme_dir(config['theme']), ]
+        theme_dir = [utils.get_themes()[config['theme']], ]
         config['mkdocs_templates'] = os.path.join(package_dir, 'templates')
 
         if config['theme_dir'] is not None:
@@ -356,7 +330,7 @@ class Theme(OptionallyRequired):
             raise ValidationError(
                 ("The theme '{0}' is no longer included in MkDocs by default "
                  "and must be installed with pip. See http://www.mkdocs.org"
-                 "/about/release-notes/#add-support-for-installable-themes "
+                 "/about/release-notes/#add-support-for-installable-themes"
                  "for more details").format(value)
             )
 

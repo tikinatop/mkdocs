@@ -40,10 +40,10 @@ the theme.
 ### Install with a Package Manager
 
 If you have and use a package manager (such as [apt-get], [dnf], [homebrew],
-[yum], [chocolatey], etc.) to install packages on your system, then you may
-want to search for a "MkDocs" package and, if a recent version is available,
-install it with your package manager (check your system's documentation for
-details). That's it, you're done! Skip down to [Getting Started](#getting-started).
+[yum], etc.) to install packages on your system, then you may want to search for
+a "MkDocs" package and, if a recent version is available, install it with your
+package manager (check your system's documentation for details). That's it,
+you're done! Skip down to [Getting Started](#getting-started).
 
 If your package manager does not have a recent "MkDocs" package, you can still
 use your package manager to install "Python" and "pip". Then you can use pip to
@@ -53,7 +53,6 @@ use your package manager to install "Python" and "pip". Then you can use pip to
 [homebrew]: http://brew.sh/
 [dnf]: http://dnf.readthedocs.io/en/latest/index.html
 [yum]: http://yum.baseurl.org/
-[chocolatey]: https://chocolatey.org/
 
 ### Manual Installation
 
@@ -323,7 +322,7 @@ able to host it from pretty much anywhere. [GitHub project pages] and [Amazon
 S3] may be good hosting options, depending upon your needs. Upload the contents
 of the entire `site` directory to wherever you're hosting your website from and
 you're done. For specific instructions on a number of common hosts, see the
-[Deploying your Docs][deploy] page.
+[Deploying your Docs] page.
 
 ## Getting help
 
@@ -345,3 +344,4 @@ the MkDocs IRC channel `#mkdocs` on freenode.
 [Python]: https://www.python.org/
 [site_name]: user-guide/configuration/#site_name
 [theme]: user-guide/configuration/#theme
+[Deploying your Docs]: user-guide/deploying-your-docs.md

@@ -14,7 +14,6 @@ import markdown
 import os
 import pkg_resources
 import shutil
-import re
 import sys
 import yaml
 import fnmatch
@@ -287,7 +286,7 @@ def create_media_urls(nav, path_list):
             continue
         # We must be looking at a local path.
         url = path_to_url(path)
-        relative_url = '%s/%s' % (nav.url_context.make_relative('/').rstrip('/'), url)
+        relative_url = '%s/%s' % (nav.url_context.make_relative('/'), url)
         final_urls.append(relative_url)
 
     return final_urls
@@ -333,10 +332,9 @@ def create_relative_media_url(nav, url):
     # TODO: Fix this, this is a hack. Relative urls are not being calculated
     # correctly for images in the same directory as the markdown. I think this
     # is due to us moving it into a directory with index.html, but I'm not sure
-    # win32 platform uses backslash "\". eg. "\level1\level2"
-    notindex = re.match(r'.*(?:\\|/)index.md$', nav.file_context.current_file) is None
-
-    if notindex and nav.url_context.base_path != '/' and relative_url.startswith("./"):
+    if (nav.file_context.current_file.endswith("/index.md") is False and
+            nav.url_context.base_path != '/' and
+            relative_url.startswith("./")):
         relative_url = ".%s" % relative_url
 
     return relative_url
@@ -378,15 +376,8 @@ def convert_markdown(markdown_source, extensions=None, extension_configs=None):
     return (html_content, table_of_contents, meta)
 
 
-def get_theme_dir(name):
-    """ Return the directory of an installed theme by name. """
-
-    theme = get_themes()[name]
-    return os.path.dirname(os.path.abspath(theme.load().__file__))
-
-
 def get_themes():
-    """ Return a dict of all installed themes as (name, entry point) pairs. """
+    """Return a dict of theme names and their locations"""
 
     themes = {}
     builtins = pkg_resources.get_entry_map(dist='mkdocs', group='mkdocs.themes')
@@ -406,11 +397,14 @@ def get_themes():
 
         themes[theme.name] = theme
 
+    themes = dict((name, os.path.dirname(os.path.abspath(theme.load().__file__)))
+                  for name, theme in themes.items())
+
     return themes
 
 
 def get_theme_names():
-    """Return a list of all installed themes by name."""
+    """Return a list containing all the names of all the builtin themes."""
 
     return get_themes().keys()
 

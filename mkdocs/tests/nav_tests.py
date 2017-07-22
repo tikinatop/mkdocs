@@ -49,6 +49,7 @@ class SiteNavigationTests(unittest.TestCase):
                 {'Debugging': 'api-guide/debugging.md'},
             ]},
             {'About': [
+                'about/index.md',
                 {'Release notes': 'about/release-notes.md'},
                 {'License': 'about/license.md'}
             ]}
@@ -59,14 +60,14 @@ class SiteNavigationTests(unittest.TestCase):
             Running - /api-guide/running/
             Testing - /api-guide/testing/
             Debugging - /api-guide/debugging/
-        About
+        About - /about/
             Release notes - /about/release-notes/
             License - /about/license/
         """)
         site_navigation = nav.SiteNavigation(pages)
         self.assertEqual(str(site_navigation).strip(), expected)
         self.assertEqual(len(site_navigation.nav_items), 3)
-        self.assertEqual(len(site_navigation.pages), 6)
+        self.assertEqual(len(site_navigation.pages), 7)
 
     def test_nested_ungrouped(self):
         pages = [
@@ -325,10 +326,10 @@ class SiteNavigationTests(unittest.TestCase):
         self.assertEqual([n.title for n in nav_items],
                          ['Home', 'Running', 'Notes', 'License'])
         self.assertEqual([n.url for n in nav_items], [
-            '/',
-            '/api-guide/running/',
-            '/about/notes/',
-            '/about/sub/license/'
+            '',
+            '/api-guide/running',
+            '/about/notes',
+            '/about/sub/license'
         ])
 
     def test_force_abs_urls_with_base(self):
@@ -351,10 +352,10 @@ class SiteNavigationTests(unittest.TestCase):
         self.assertEqual([n.title for n in nav_items],
                          ['Home', 'Running', 'Notes', 'License'])
         self.assertEqual([n.url for n in nav_items], [
-            '/foo/',
-            '/foo/api-guide/running/',
-            '/foo/about/notes/',
-            '/foo/about/sub/license/'
+            '/foo',
+            '/foo/api-guide/running',
+            '/foo/about/notes',
+            '/foo/about/sub/license'
         ])
 
     def test_invalid_pages_config(self):
@@ -610,149 +611,3 @@ class TestLegacyPagesConfig(unittest.TestCase):
         self.assertEqual(str(site_navigation).strip(), expected)
         self.assertEqual(len(site_navigation.nav_items), 3)
         self.assertEqual(len(site_navigation.pages), 6)
-
-    def test_edit_uri(self):
-        """
-        Ensure that set_edit_url creates well formed URLs for edit_uri
-        """
-
-        pages = [
-            'index.md',
-            'internal.md',
-            'sub/internal.md',
-            'sub1/sub2/internal.md',
-        ]
-
-        # Basic test
-        repo_url = 'http://example.com/'
-        edit_uri = 'edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2],
-            repo_url + edit_uri + pages[3],
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure the '/' is added to the repo_url and edit_uri
-        repo_url = 'http://example.com'
-        edit_uri = 'edit/master/docs'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure query strings are supported
-        repo_url = 'http://example.com'
-        edit_uri = '?query=edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2],
-            repo_url + edit_uri + pages[3],
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure fragment strings are supported
-        repo_url = 'http://example.com'
-        edit_uri = '#fragment/edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2],
-            repo_url + edit_uri + pages[3],
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-    def test_edit_uri_windows(self):
-        """
-        Ensure that set_edit_url creates well formed URLs for edit_uri with a windows path
-        """
-
-        pages = [
-            'index.md',
-            'internal.md',
-            'sub\\internal.md',
-            'sub1\\sub2\\internal.md',
-        ]
-
-        # Basic test
-        repo_url = 'http://example.com/'
-        edit_uri = 'edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2].replace('\\', '/'),
-            repo_url + edit_uri + pages[3].replace('\\', '/'),
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure the '/' is added to the repo_url and edit_uri
-        repo_url = 'http://example.com'
-        edit_uri = 'edit/master/docs'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure query strings are supported
-        repo_url = 'http://example.com'
-        edit_uri = '?query=edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2].replace('\\', '/'),
-            repo_url + edit_uri + pages[3].replace('\\', '/'),
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])
-
-        # Ensure fragment strings are supported
-        repo_url = 'http://example.com'
-        edit_uri = '#fragment/edit/master/docs/'
-
-        site_navigation = nav.SiteNavigation(pages)
-
-        expected_results = (
-            repo_url + edit_uri + pages[0],
-            repo_url + edit_uri + pages[1],
-            repo_url + edit_uri + pages[2].replace('\\', '/'),
-            repo_url + edit_uri + pages[3].replace('\\', '/'),
-        )
-
-        for idx, page in enumerate(site_navigation.walk_pages()):
-            page.set_edit_url(repo_url, edit_uri)
-            self.assertEqual(page.edit_url, expected_results[idx])

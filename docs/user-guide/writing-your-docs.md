@@ -13,7 +13,7 @@ automatically created by discovering all the Markdown files in the
 [documentation directory](/user-guide/configuration.md#docs_dir). An
 automatically created pages configuration will always be sorted
 alphanumerically by file name. You will need to manually define your pages
-configuration if you would like your pages sorted differently.
+configuration if you would like your pages sorted differantly.
 
 A simple pages configuration looks like this:
 
@@ -55,6 +55,26 @@ With the above configuration we have three top level sections: Home, User Guide
 and About. Then under User Guide we have two pages, Writing your docs and
 Styling your docs. Under the About section we also have two pages, License and
 Release Notes.
+
+Note that in the above example, the "User Guide" and "About" section headers do
+not actually link to any pages. They are simply a container for a list of child
+pages. If you would like the section headers to also link to pages, include an
+`index` page as the first child of that section with no title defined.
+
+```no-highlight
+pages:
+- Home: 'index.md'
+- About:
+    - 'about/index.md'
+    - 'License': 'about/license.md'
+    - 'Release Notes': 'about/release-notes.md'
+```
+
+In the above example, the "About" section heading will point to the
+`about/index.md` page and no seperate entry for that page will be listed as a
+child. Only the "License" and "Release Notes" pages would be children. This will
+only work if the `index` page is the first item in the sublist and no title is
+defined for that page.
 
 ## File layout
 

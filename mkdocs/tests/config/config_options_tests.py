@@ -76,73 +76,6 @@ class TypeTest(unittest.TestCase):
                           option.validate, "Testing Long")
 
 
-class IpAddressTest(unittest.TestCase):
-
-    def test_valid_address(self):
-        addr = '127.0.0.1:8000'
-
-        option = config_options.IpAddress()
-        value = option.validate(addr)
-        self.assertEqual(utils.text_type(value), addr)
-        self.assertEqual(value.host, '127.0.0.1')
-        self.assertEqual(value.port, 8000)
-
-    def test_valid_IPv6_address(self):
-        addr = '[::1]:8000'
-
-        option = config_options.IpAddress()
-        value = option.validate(addr)
-        self.assertEqual(utils.text_type(value), addr)
-        self.assertEqual(value.host, '[::1]')
-        self.assertEqual(value.port, 8000)
-
-    def test_named_address(self):
-        addr = 'localhost:8000'
-
-        option = config_options.IpAddress()
-        value = option.validate(addr)
-        self.assertEqual(utils.text_type(value), addr)
-        self.assertEqual(value.host, 'localhost')
-        self.assertEqual(value.port, 8000)
-
-    def test_default_address(self):
-        addr = '127.0.0.1:8000'
-
-        option = config_options.IpAddress(default=addr)
-        value = option.validate(None)
-        self.assertEqual(utils.text_type(value), addr)
-        self.assertEqual(value.host, '127.0.0.1')
-        self.assertEqual(value.port, 8000)
-
-    def test_invalid_address_format(self):
-        option = config_options.IpAddress()
-        self.assertRaises(
-            config_options.ValidationError,
-            option.validate, '127.0.0.18000'
-        )
-
-    def test_invalid_address_type(self):
-        option = config_options.IpAddress()
-        self.assertRaises(
-            config_options.ValidationError,
-            option.validate, 123
-        )
-
-    def test_invalid_address_port(self):
-        option = config_options.IpAddress()
-        self.assertRaises(
-            config_options.ValidationError,
-            option.validate, '127.0.0.1:foo'
-        )
-
-    def test_invalid_address_missing_port(self):
-        option = config_options.IpAddress()
-        self.assertRaises(
-            config_options.ValidationError,
-            option.validate, '127.0.0.1'
-        )
-
-
 class URLTest(unittest.TestCase):
 
     def test_valid_url(self):
@@ -270,21 +203,11 @@ class DirTest(unittest.TestCase):
 
 class SiteDirTest(unittest.TestCase):
 
-    def validate_config(self, config):
-        """ Given a config with values for site_dir and doc_dir, run site_dir post_validation. """
-        site_dir = config_options.SiteDir()
-        docs_dir = config_options.Dir()
-
-        config['config_file_path'] = os.path.join(os.path.abspath('..'), 'mkdocs.yml')
-
-        config['docs_dir'] = docs_dir.validate(config['docs_dir'])
-        config['site_dir'] = site_dir.validate(config['site_dir'])
-        site_dir.post_validation(config, 'site_dir')
-        return True  # No errors were raised
-
     def test_doc_dir_in_site_dir(self):
 
         j = os.path.join
+        option = config_options.SiteDir()
+        docs_dir = config_options.Dir()
         # The parent dir is not the same on every system, so use the actual dir name
         parent_dir = mkdocs.__file__.split(os.sep)[-3]
 
@@ -295,12 +218,16 @@ class SiteDirTest(unittest.TestCase):
             {'docs_dir': 'docs', 'site_dir': ''},
             {'docs_dir': '', 'site_dir': ''},
             {'docs_dir': j('..', parent_dir, 'docs'), 'site_dir': 'docs'},
-            {'docs_dir': 'docs', 'site_dir': '/'}
         )
 
         for test_config in test_configs:
+            test_config['config_file_path'] = j(os.path.abspath('..'), 'mkdocs.yml')
+
+            test_config['docs_dir'] = docs_dir.validate(test_config['docs_dir'])
+            test_config['site_dir'] = option.validate(test_config['site_dir'])
+
             self.assertRaises(config_options.ValidationError,
-                              self.validate_config, test_config)
+                              option.post_validation, test_config, 'site_dir')
 
     def test_site_dir_in_docs_dir(self):
 
@@ -310,23 +237,19 @@ class SiteDirTest(unittest.TestCase):
             {'docs_dir': 'docs', 'site_dir': j('docs', 'site')},
             {'docs_dir': '.', 'site_dir': 'site'},
             {'docs_dir': '', 'site_dir': 'site'},
-            {'docs_dir': '/', 'site_dir': 'site'},
         )
 
         for test_config in test_configs:
+            test_config['config_file_path'] = j(os.path.abspath('..'), 'mkdocs.yml')
+
+            docs_dir = config_options.Dir()
+            option = config_options.SiteDir()
+
+            test_config['docs_dir'] = docs_dir.validate(test_config['docs_dir'])
+            test_config['site_dir'] = option.validate(test_config['site_dir'])
+
             self.assertRaises(config_options.ValidationError,
-                              self.validate_config, test_config)
-
-    def test_common_prefix(self):
-        """ Legitimate settings with common prefixes should not fail validation. """
-
-        test_configs = (
-            {'docs_dir': 'docs', 'site_dir': 'docs-site'},
-            {'docs_dir': 'site-docs', 'site_dir': 'site'},
-        )
-
-        for test_config in test_configs:
-            assert self.validate_config(test_config)
+                              option.post_validation, test_config, 'site_dir')
 
 
 class ThemeTest(unittest.TestCase):

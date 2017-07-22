@@ -102,30 +102,6 @@ class UtilsTests(unittest.TestCase):
         assertPathGenerated("./img.png", "./img.png")
         assertPathGenerated("/img.png", "../img.png")
 
-    def test_create_relative_media_url_sub_index_windows(self):
-        '''
-        test special case where there's a sub/index.md page and we are on Windows.
-        current_file paths uses backslash in Windows
-        '''
-
-        site_navigation = nav.SiteNavigation([
-            {'Home': 'index.md'},
-            {'Sub': [
-                {'Sub Home': '/level1/level2/index.md'},
-
-            ]}
-        ])
-        site_navigation.url_context.set_current_url('/level1/level2')
-        site_navigation.file_context.current_file = "level1\\level2\\index.md"
-
-        def assertPathGenerated(declared, expected):
-            url = utils.create_relative_media_url(site_navigation, declared)
-            self.assertEqual(url, expected)
-
-        assertPathGenerated("img.png", "./img.png")
-        assertPathGenerated("./img.png", "./img.png")
-        assertPathGenerated("/img.png", "../img.png")
-
     def test_reduce_list(self):
         self.assertEqual(
             utils.reduce_list([1, 2, 3, 4, 5, 5, 2, 4, 6, 7, 8]),
@@ -137,36 +113,6 @@ class UtilsTests(unittest.TestCase):
         self.assertEqual(
             sorted(utils.get_theme_names()),
             ['mkdocs', 'readthedocs'])
-
-    @mock.patch('pkg_resources.iter_entry_points', autospec=True)
-    def test_get_theme_dir(self, mock_iter):
-
-        path = 'some/path'
-
-        theme = mock.Mock()
-        theme.name = 'mkdocs2'
-        theme.dist.key = 'mkdocs2'
-        theme.load().__file__ = os.path.join(path, '__init__.py')
-
-        mock_iter.return_value = iter([theme])
-
-        self.assertEqual(utils.get_theme_dir(theme.name), os.path.abspath(path))
-
-    def test_get_theme_dir_keyerror(self):
-
-        self.assertRaises(KeyError, utils.get_theme_dir, 'nonexistanttheme')
-
-    @mock.patch('pkg_resources.iter_entry_points', autospec=True)
-    def test_get_theme_dir_importerror(self, mock_iter):
-
-        theme = mock.Mock()
-        theme.name = 'mkdocs2'
-        theme.dist.key = 'mkdocs2'
-        theme.load.side_effect = ImportError()
-
-        mock_iter.return_value = iter([theme])
-
-        self.assertRaises(ImportError, utils.get_theme_dir, theme.name)
 
     @mock.patch('pkg_resources.iter_entry_points', autospec=True)
     def test_get_themes_warning(self, mock_iter):

@@ -153,7 +153,7 @@ navigation as a nested list.
 {% endif %}
 ```
 
-The `nav` object also contains a `homepage` object, which points to the `page`
+The `nav` object also contains a `hompage` object, which points to the `page`
 object of the homepage. For example, you may want to access `nav.homepage.url`.
 
 #### base_url
@@ -322,7 +322,7 @@ As of MkDocs `0.13` client side search support has been added to MkDocs with
 [Lunr.js].
 
 Search can either be added to every page in the theme or to a dedicated
-template which must be named `search.html`. The search template will be built
+template which must be named `search.html`. The search template will be build
 with the same name and can be viewable with `mkdocs serve` at
 `http://localhost:8000/search.html`. An example of the two different
 approaches can be seen by comparing the `mkdocs` and `readthedocs` themes.
@@ -402,7 +402,7 @@ contains an empty `__init__.py` file and your template and media files.
 |-- MANIFEST.in
 |-- theme_name
 |   |-- __init__.py
-|   |-- main.html
+|   |-- main.py
 |   |-- styles.css
 `-- setup.py
 ```

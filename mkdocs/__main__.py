@@ -223,6 +223,5 @@ def new_command(project_directory):
     """Create a new MkDocs project"""
     new.new(project_directory)
 
-
 if __name__ == '__main__':  # pragma: no cover
     cli()

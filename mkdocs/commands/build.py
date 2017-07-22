@@ -76,8 +76,7 @@ def get_global_context(nav, config):
 
     return {
         'nav': nav,
-        # base_url should never end with a slash.
-        'base_url': nav.url_context.make_relative('/').rstrip('/'),
+        'base_url': nav.url_context.make_relative('/'),
 
         'extra_css': extra_css,
         'extra_javascript': extra_javascript,
@@ -263,6 +262,7 @@ def build_pages(config, dump_json=False, dirty=False):
         'content': 'page.content',
         'toc': 'page.toc',
         'meta': 'page.meta',
+        'current_page': 'page.current_page',
         'canonical_url': 'page.canonical_url',
         'previous_page': 'page.previous_page',
         'next_page': 'page.next_page',
