@@ -1,5 +1,4 @@
 ﻿import os
-import io
 
 # TODO
     # - Sanitizer l'input os.path.splitext sous une fonction qui changera les noms etc, etc...
@@ -9,7 +8,6 @@ CURDIR=os.getcwd()
 DOCSDIR=os.path.join(CURDIR, "docs")
 YAML_PROJECT_EDIT=os.path.join(CURDIR, "to_modify.yml")
 YAML_MAIN_FILE=os.path.join(CURDIR, "mkdocs.yml")
-WELCOME_PAGE='Accueil'
 
 exclude='assets'
 
@@ -25,16 +23,16 @@ def list_files(startpath):
         for d in dirs:
         	target = os.path.join(startpath, unix_path(root.split(startpath)[1])[1:], d, 'index.md')
         	if os.path.isfile(target) is not True:
-        		print(target + ' does not exist').decode('utf-8')
+        		print(target + ' does not exist!').decode('utf-8')
         		open(target, 'a').close()
         if root == startpath:
-            payload+='pages: \n{}\'{}\': \'{}\'\n'.format(subindent, WELCOME_PAGE, 'index.md')
+            payload+='pages: \n'
         else:
             payload+='{}\'{}\': \n{}\'{}{}\'\n'.format(indent, basedir, subindent, unix_path(root.split(startpath)[1])[1:], '/index.md')
         for f in files:
-            if root == startpath and f!='index.md':
+            if root == startpath:
                 payload+='{}\'{}\': \'{}\'\n'.format(subindent, os.path.splitext(f)[0], f)
-            elif root!=startpath:
+            elif root != startpath and f != "index.md":
                 payload+='{}\'{}\': \'{}/{}\'\n'.format(subindent, os.path.splitext(f)[0], unix_path(root.split(startpath)[1])[1:], f)
     return payload
 
@@ -42,10 +40,10 @@ def list_files(startpath):
 def unix_path(path):
     return path.replace('\\', '/')
 
-filetree = list_files(DOCSDIR).decode('utf-8')
+filetree = list_files(DOCSDIR)
 
-with io.open(YAML_MAIN_FILE, 'w', encoding='utf-8') as fout:
-    with io.open(YAML_PROJECT_EDIT, 'r', encoding='utf-8') as fin:
+with open(YAML_MAIN_FILE, 'w') as fout:
+    with open(YAML_PROJECT_EDIT) as fin:
         for line in fin:
-            fout.write(unicode(line))
-        fout.write(unicode(filetree))
+            fout.write(line)
+        fout.write(filetree)
